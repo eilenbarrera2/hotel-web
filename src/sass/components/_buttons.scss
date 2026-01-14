@@ -1,0 +1,138 @@
+.theme-btn {
+	background: #052659;
+	color: #ffffff;
+	display: inline-block;
+	font-weight: 600;
+	padding: 15px 45px;
+	border: 0;
+	border-radius: 6px;
+	text-transform: capitalize;
+	-webkit-backface-visibility: hidden;
+	z-index: 1;
+	position: relative;
+	font-size: 16px;
+	font-size: calc-rem-value(16);
+
+	&:after {
+		position: absolute;
+		content: '';
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: #041e4a;
+		/* darken(#052659, 8%) */
+		transition: opacity 0.5s ease-out;
+		opacity: 0;
+		z-index: -1;
+		border-radius: 6px;
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+		background: #042354;
+		/* darken(#052659, 5%) */
+		color: #ffffff;
+	}
+
+	&:hover:after {
+		opacity: 1;
+	}
+
+	@include media-query(991px) {
+		font-size: 18px;
+		font-size: calc-rem-value(18);
+	}
+
+	@include media-query(767px) {
+		padding: 12px 18px;
+		font-size: 14px;
+	}
+}
+
+.theme-btn-s2 {
+	background: #ffffff;
+	color: #333333;
+	/* Asumiendo color de texto */
+	display: inline-block;
+	padding: 12px 22px;
+	border: 1px solid #052659;
+	border-radius: 55px;
+	text-transform: capitalize;
+	z-index: 1;
+	position: relative;
+
+	&:after {
+		position: absolute;
+		content: '';
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: 55px;
+		background: linear-gradient(to right, #052659, #063570);
+		/* Gradiente azul */
+		transition: opacity 0.5s ease-out;
+		opacity: 0;
+		z-index: -1;
+	}
+
+	@include media-query(991px) {
+		font-size: 14px;
+		font-size: calc-rem-value(14);
+	}
+
+	&:hover,
+	&:focus,
+	&:active {
+		background: #042354;
+		/* darken(#052659, 5%) */
+		color: #ffffff;
+	}
+
+	&:hover:after {
+		opacity: 1;
+	}
+
+	@include media-query(767px) {
+		padding: 12px 18px;
+		font-size: 13px;
+	}
+}
+
+.view-cart-btn {
+	background: #052659;
+	color: #ffffff;
+	display: block;
+	font-weight: 600;
+	padding: 10px 45px;
+	border: 0;
+	border-radius: 5px;
+	text-transform: capitalize;
+	-webkit-backface-visibility: hidden;
+	z-index: 1;
+	position: relative;
+	font-size: 16px;
+	margin-top: 15px;
+
+	&:after {
+		display: none;
+	}
+
+	&:hover {
+		background-color: #041e4a;
+		/* darken(#052659, 8%) */
+		color: #ffffff;
+	}
+
+	&.s1 {
+		background: #ddd;
+		color: #333333;
+
+		&:hover {
+			background-color: #c4c4c4;
+			/* darken(#ddd, 8%) */
+		}
+	}
+}
