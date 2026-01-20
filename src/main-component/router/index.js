@@ -20,6 +20,7 @@ import BlogDetailsLeftSiide from '../BlogDetailsLeftSiide'
 import LoginPage from '../LoginPage'
 import SignUpPage from '../SignUpPage'
 import ForgotPassword from '../ForgotPassword'
+import ResetPassword from '../ResetPassword' // ✅ NUEVO: Importar ResetPassword
 import PricingPage from '../PricingPage/PricingPage';
 import ErrorPage from '../ErrorPage/ErrorPage';
 import ContactPage from '../ContactPage/ContactPage';
@@ -55,11 +56,10 @@ const AllRoute = () => {
           <Route path='login' element={<LoginPage />} />
           <Route path='register' element={<SignUpPage />} />
           <Route path='forgot-password' element={<ForgotPassword />} />
+          <Route path='reset-password' element={<ResetPassword />} /> {/* ✅ NUEVO: Ruta de reset */}
           <Route path="/event/:id" element={<EventDetailPage />} />
-
         </Routes>
       </BrowserRouter>
-
     </div>
   );
 }
