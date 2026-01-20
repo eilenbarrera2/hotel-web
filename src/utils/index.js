@@ -6,10 +6,38 @@ function getFeaturedProducts(products) {
     return products.filter(item => item.sale === true).slice(0, 12);
 }
 
+// ✅ Función actualizada para manejar habitaciones de hotel
 function totalPrice(items) {
-    return items.reduce((itemAcc, item) => {
-        return itemAcc += (item.price * item.qty);
+    if (!Array.isArray(items)) {
+        console.warn('⚠️ totalPrice recibió algo que no es un array:', items);
+        return 0;
+    }
+
+    const total = items.reduce((itemAcc, item) => {
+        // Prioridad 1: usar total_price si existe (viene del backend)
+        if (item.total_price !== undefined && item.total_price !== null) {
+            const price = parseFloat(item.total_price) || 0;
+            console.log('💰 Usando total_price:', { item: item.title, price });
+            return itemAcc + price;
+        }
+
+        // Prioridad 2: calcular desde price y nights/qty
+        const quantity = item.nights || item.qty || 1;
+        const price = parseFloat(item.price) || 0;
+        const calculated = price * quantity;
+
+        console.log('💰 Calculando precio:', {
+            item: item.title,
+            price,
+            quantity,
+            calculated
+        });
+
+        return itemAcc + calculated;
     }, 0);
+
+    console.log('💵 Total final del carrito:', total);
+    return total;
 }
 
 function isWishListed(productId, wishList) {

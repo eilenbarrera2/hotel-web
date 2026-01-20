@@ -4,17 +4,15 @@ import PageTitle from '../../components/pagetitle/PageTitle';
 import Navbar from '../../components/Navbar';
 import Footer from "../../components/footer";
 import Scrollbar from "../../components/scrollbar";
-import { Button, Grid } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { totalPrice } from "../../utils";
 import {
   removeFromCart,
-  incrementQuantity,
-  decrementQuantity,
   loadUserCart,
 } from "../../store/actions/action";
 import { authService } from '../../api/authService';
+import roomService from '../../api/roomService';
 import { toast } from "react-toastify";
 
 import Logo from '../../images/logo2.png';
@@ -27,23 +25,22 @@ const CartPage = (props) => {
   // ========================================================
   // 🔥 VERIFICAR AUTENTICACIÓN Y CARGAR CARRITO
   // ========================================================
-  // ========================================================
-  // 🔥 VERIFICAR AUTENTICACIÓN Y CARGAR CARRITO (CORREGIDO)
-  // ========================================================
   useEffect(() => {
     const checkAuth = async () => {
       const user = authService.getCurrentUser();
       setCurrentUser(user);
 
       if (user) {
-        const userId = user.id || user.email || user.username;
-        console.log('👤 Usuario autenticado:', userId);
+        console.log('👤 Usuario autenticado en CartPage:', user.id);
 
         try {
-          // 👇 Cargar carrito desde backend
-          // Usamos props.loadUserCart directamente sin depender de todo el objeto 'props'
-          await props.loadUserCart(userId);
-          console.log('✅ Carrito cargado en CartPage para:', userId);
+          // Cargar carrito desde backend
+          const cartData = await roomService.getCart();
+          console.log('✅ Carrito cargado en CartPage:', cartData);
+
+          // Actualizar Redux con los datos del carrito
+          await props.loadUserCart(user.id, cartData);
+
         } catch (error) {
           console.error('❌ Error al cargar carrito:', error);
           toast.error('Error al cargar el carrito');
@@ -57,8 +54,7 @@ const CartPage = (props) => {
     };
 
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // <--- ¡AQUÍ ESTÁ LA MAGIA! Corchetes vacíos = Se ejecuta solo 1 vez.
+  }, [navigate, props]);
 
   // ========================================================
   // 🔥 MANEJAR ELIMINACIÓN CON CONFIRMACIÓN
@@ -67,9 +63,10 @@ const CartPage = (props) => {
     if (window.confirm(`¿Eliminar ${cartItem.title} del carrito?`)) {
       try {
         await props.removeFromCart(cartItem.id);
-        console.log('🗑️ Item eliminado:', cartItem.title);
+        toast.success('Habitación eliminada del carrito');
       } catch (error) {
         console.error('❌ Error al eliminar:', error);
+        toast.error('Error al eliminar la habitación');
       }
     }
   };
@@ -78,7 +75,13 @@ const CartPage = (props) => {
     window.scrollTo(10, 0);
   };
 
-  const { carts } = props;
+  // ✅ Asegurar que carts sea siempre un array
+  const carts = Array.isArray(props.carts) ? props.carts : [];
+
+  console.log('🛒 Carrito en CartPage:', {
+    length: carts.length,
+    items: carts
+  });
 
   // ========================================================
   // PANTALLA DE CARGA
@@ -175,7 +178,7 @@ const CartPage = (props) => {
                   {/* ========================================== */}
                   {/* 🔥 TABLA DE CARRITO O MENSAJE VACÍO */}
                   {/* ========================================== */}
-                  {carts && carts.length > 0 ? (
+                  {carts.length > 0 ? (
                     <>
                       <div style={{ overflowX: 'auto' }}>
                         <table className="table-responsive cart-wrap">
@@ -270,7 +273,7 @@ const CartPage = (props) => {
                                     borderRadius: '5px',
                                     fontWeight: 'bold'
                                   }}>
-                                    {catItem.qty || 1} {catItem.qty === 1 ? 'noche' : 'noches'}
+                                    {catItem.nights || catItem.qty || 1} {(catItem.nights || catItem.qty) === 1 ? 'noche' : 'noches'}
                                   </span>
                                 </td>
 
@@ -282,7 +285,7 @@ const CartPage = (props) => {
                                 {/* TOTAL */}
                                 <td className="stock">
                                   <strong style={{ color: '#52c41a', fontSize: '16px' }}>
-                                    ${((catItem.qty || 1) * (catItem.price || 0)).toLocaleString('es-MX')}
+                                    ${catItem.total_price ? catItem.total_price.toLocaleString('es-MX') : '0'}
                                   </strong>
                                 </td>
 
@@ -332,7 +335,7 @@ const CartPage = (props) => {
                           <li>
                             Total de Noches
                             <span style={{ fontWeight: 'bold' }}>
-                              {carts.reduce((sum, item) => sum + (item.qty || 1), 0)} noches
+                              {carts.reduce((sum, item) => sum + (item.nights || item.qty || 1), 0)} noches
                             </span>
                           </li>
                           <li>
@@ -380,11 +383,7 @@ const CartPage = (props) => {
                       </div>
                     </>
                   ) : (
-
-                    /* ========================================== */
                     /* CARRITO VACÍO */
-
-                    /* ========================================== */
                     <div className="empty-cart text-center" style={{ padding: '80px 20px' }}>
                       <div style={{
                         fontSize: '100px',
@@ -477,17 +476,18 @@ const CartPage = (props) => {
 };
 
 // ========================================================
-// MAPEO DE REDUX
+// MAPEO DE REDUX - CORREGIDO
 // ========================================================
 const mapStateToProps = (state) => {
+  console.log('🔍 Redux State en CartPage:', state.cartList);
+
   return {
-    carts: state.cartList.cart,
+    // ✅ Cambiar de 'cart' a 'carts'
+    carts: state.cartList?.carts || [],
   };
 };
 
 export default connect(mapStateToProps, {
   removeFromCart,
-  incrementQuantity,
-  decrementQuantity,
   loadUserCart,
 })(CartPage);
